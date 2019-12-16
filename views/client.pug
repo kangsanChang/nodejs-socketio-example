@@ -1,0 +1,74 @@
+extends layout
+
+block content
+  <h4 style="margin-bottom: 40px;">HMCL coffee 대표메뉴 ☕️</h4>
+  <ul class="collection">
+    <li class="collection-item avatar" id="hot_coffee">
+      <img src="images/뜨아.jpg" alt="" class="circle">
+      <span class="title">뜨아</span>
+      <p>2,800원<br/></p>
+    </li>
+    <li class="collection-item avatar" id="cold_coffee">
+      <img src="images/아아.jpg" alt="" class="circle">
+      <span class="title">아아</span>
+      <p>3,000원<br>
+      </p>
+    </li>
+    <li class="collection-item avatar" id="heong_guk">
+      <img src="images/으아.jpg" alt="" class="circle">
+      <span class="title">으아</span>
+      <p>1,500원<br>
+      </p>
+    </li>
+    <li class="collection-item avatar" id="cafe_latte">
+      <img src="images/카페라테.jpg" alt="" class="circle">
+      <span class="title">카페라테</span>
+      <p>10,000원<br>
+      </p>
+    </li>
+    <li class="collection-item avatar" id="morning_set">
+      <img src="images/모닝세트.jpg" alt="" class="circle">
+      <span class="title">모닝세트</span>
+      <p>4,000원<br>
+      </p>
+    </li>
+  </ul>
+
+  <div id="brining-coffee-modal" class="modal">
+    <div class="modal-content">
+        <h4>Bringing your coffee...</h4>
+        img(src="images/coffee_loading.gif" style="width:100%")
+    </div>
+  </div>
+  
+  input(type="text" placeholder="추가요청사항" id="requests")
+  button(class="waves-effect waves-light btn" style="width:100%") 주문하기
+  
+  script(src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.slim.js")
+  script.
+    var instance;
+    document.addEventListener('DOMContentLoaded', function() {
+      var elems = document.querySelectorAll('.modal');
+      var instances = M.Modal.init(elems);
+      instance = M.Modal.getInstance(elems[0]);
+    });
+
+    var socket = io();
+    $('button').click(() => {
+      const order = submitOrder();
+      order.id = socket.io.engine.id;
+      socket.emit('order', order);
+      $('#requests').val('');
+      $('li').removeClass('active');
+      instance.open();
+    })
+
+    socket.on('closed', () => {
+      window.alert('영업 시간이 아닙니다.');
+      instance.close();
+    })
+
+    socket.on('receive_coffee', ()=> {
+      instance.close();
+      window.alert('맛있게 드세요!');
+    })

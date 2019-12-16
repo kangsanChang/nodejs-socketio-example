@@ -1,0 +1,34 @@
+extends layout
+
+block content
+  <h4 style="margin-bottom: 40px;">배기요 사장님 페이지 🛵</h4>
+  <ul class="collection with-header" id="request-list">
+    <li class="collection-header"><h3>🙋‍♀️🙋‍♂️<h3><h5>주문 요청 내역</h5></li>
+  </ul>
+
+  script(src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.slim.js")
+  script.
+    var socket = io();
+    const accept = (request_id) => {
+      $('#req-'+request_id).remove();
+      socket.emit('serve_coffee', request_id);
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+      socket.emit('ceo_connected');
+      socket.on('new_order', (data) => {
+        M.toast({
+          html: `배기요민족 주문!<br/>주문자: ${data.id}<br/>주문내역: ${data.order}`,
+          inDuration: 5000
+        });
+        const requestMsg = (data.requests===undefined) ? "" : data.requests;
+        $('#request-list').append(`<li class="collection-item avatar" id="req-${data.id}">
+      <span class="title">${data.id} 님의 주문!</span>
+      <p>${data.order}<br/>
+        ${requestMsg}
+      </p>
+      <button class="secondary-content waves-effect waves-light btn" onClick="accept('${data.id}')">MAKE <i class="material-icons">free_breakfast</i></button>
+    </li>`)
+      });
+    });
+
+
